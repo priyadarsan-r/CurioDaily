@@ -1,0 +1,27 @@
+timezone: "Asia/Kolkata"
+daily_targets:
+  reels: 4
+  feed_posts: 2
+  carousels: 1
+publishing_slots:
+  - time: "09:00"
+    format: "reel"
+    pillar: "money_secrets"
+  - time: "11:00"
+    format: "image"
+    pillar: "editorial"
+  - time: "12:30"
+    format: "reel"
+    pillar: "human_psychology"
+  - time: "15:00"
+    format: "carousel"
+    pillar: "editorial"
+  - time: "17:00"
+    format: "reel"
+    pillar: "future_is_here"
+  - time: "18:30"
+    format: "image"
+    pillar: "editorial"
+  - time: "20:30"
+    format: "reel"
+    pillar: "daily_mystery"

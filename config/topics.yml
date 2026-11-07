@@ -1,0 +1,31 @@
+pillars:
+  money_secrets:
+    enabled: true
+    display_name: "Money Secrets"
+    target_reels_per_day: 1
+    voice_style: "smart, authoritative, intriguing"
+  human_psychology:
+    enabled: true
+    display_name: "Human Psychology"
+    target_reels_per_day: 1
+    voice_style: "relatable, conversational, thought-provoking"
+  future_is_here:
+    enabled: true
+    display_name: "Future Is Here"
+    target_reels_per_day: 1
+    voice_style: "futuristic, exciting, evidence-led"
+  daily_mystery:
+    enabled: true
+    display_name: "The Daily Mystery"
+    target_reels_per_day: 1
+    voice_style: "suspenseful, documentary-style"
+topic_scoring:
+  minimum_score: 70
+  weights:
+    curiosity: 30
+    visual_potential: 25
+    audience_relevance: 20
+    shareability: 15
+    source_reliability: 10
+deduplication:
+  lookback_days: 30
