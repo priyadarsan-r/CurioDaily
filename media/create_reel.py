@@ -14,6 +14,8 @@ from media.create_captions import create_srt_subtitles, create_ass_subtitles
 from media.create_visuals import create_reel_scene_image
 from media.ffmpeg_utils import assemble_reel_mp4
 from media.internet_media import resolve_and_render_scene_clip
+from media.quality_inspector import QualityInspector
+from media.sound_design import SoundDesigner
 from media.tts import TTSManager
 from media.visual_fetcher import get_concept_visual
 
@@ -129,23 +131,48 @@ def build_reel(
     asset_mgr.record_asset(content_id, srt_path, "subtitles")
     asset_mgr.record_asset(content_id, ass_path, "subtitles_ass")
 
-    # 4. Assemble Final Reel MP4 with modern ASS subtitles
+    # 4. Sound Design: Mood Music + SFX + Audio Ducking
+    sound_designer = SoundDesigner()
+    master_audio_path = content_dir / "master_audio_mixed.wav"
+    sound_designer.mix_master_audio(
+        voiceover_path=audio_path,
+        scenes=storyboard,
+        category=category,
+        total_duration=total_audio_duration,
+        output_master_path=master_audio_path
+    )
+    final_audio = master_audio_path if master_audio_path.exists() else audio_path
+    asset_mgr.record_asset(content_id, final_audio, "audio", attribution_text="CurioDaily Mixed Audio")
+
+    # 5. Assemble Final Reel MP4 with modern ASS subtitles & mixed audio
     mp4_path = content_dir / "reel.mp4"
     assemble_reel_mp4(
         scene_image_paths=scene_clip_paths,
         scene_durations=scene_durations,
-        audio_path=audio_path,
+        audio_path=final_audio,
         output_path=mp4_path,
         srt_path=ass_path
     )
     asset_mgr.record_asset(content_id, mp4_path, "video", attribution_text="CurioDaily Reel")
 
+    # 6. Automated Quality Inspection
+    inspector = QualityInspector()
+    quality_report = inspector.inspect_video(
+        video_path=mp4_path,
+        expected_duration=total_audio_duration,
+        scene_count=len(scene_clip_paths),
+        subtitles_path=ass_path
+    )
+
     return {
         "content_id": content_id,
         "format": "reel",
         "video_path": str(mp4_path.resolve()),
-        "audio_path": str(audio_path.resolve()),
+        "audio_path": str(final_audio.resolve()),
         "subtitles_path": str(srt_path.resolve()),
         "duration_sec": total_audio_duration,
         "scene_count": len(scene_clip_paths),
+        "quality_status": quality_report.get("status", "APPROVED"),
+        "quality_passed": quality_report.get("passed", True),
+        "quality_report": quality_report,
     }

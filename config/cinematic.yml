@@ -1,0 +1,72 @@
+# CurioDaily Cinematic Video Generator Configuration
+# All API keys must be set via environment variables, never hardcoded.
+
+video_generation:
+  # Provider options: pexels, pixabay, replicate, pollinations, ken_burns_local
+  default_provider: "ken_burns_local"
+  fallback_enabled: true
+  max_retries: 2
+  timeout_seconds: 30
+  providers:
+    pexels:
+      api_key_env: "PEXELS_API_KEY"
+      orientation: "portrait"
+    pixabay:
+      api_key_env: "PIXABAY_API_KEY"
+    replicate:
+      api_token_env: "REPLICATE_API_TOKEN"
+      model: "stability-ai/stable-video-diffusion:3f0457e4619da81c5050570459be7684e3f49297b4d35edce140249c2d1f7c3b"
+
+image_generation:
+  # Provider options: wikimedia_commons, nasa_archives, pexels_photos, pollinations_ai
+  default_provider: "pollinations_ai"
+  providers:
+    pollinations:
+      resolution: "720x1280"
+    pexels:
+      api_key_env: "PEXELS_API_KEY"
+
+tts:
+  # Provider options: kokoro_onnx, piper, windows_sapi
+  provider: "kokoro_onnx"
+  speed: 0.90
+  voices:
+    money_secrets: "am_onyx"
+    human_psychology: "bm_lewis"
+    future_is_here: "am_fenrir"
+    daily_mystery: "am_fenrir"
+
+sound_design:
+  ducking_voice_level: 1.00
+  ducking_music_level: 0.15
+  sfx_level: 0.35
+  enable_sfx: true
+  enable_music: true
+
+rendering:
+  resolution: [1080, 1920]
+  aspect_ratio: "9:16"
+  fps: 30
+  target_duration_range: [45.0, 65.0]
+  scene_count_target: [15, 20]
+  color_grading:
+    enabled: true
+    contrast: 1.05
+    saturation: 1.08
+    brightness: -0.01
+
+subtitles:
+  font_name: "Arial Black"
+  font_size: 54
+  margin_v: 250
+  border_style: 3
+  pill_background: "&HB00F172A"
+  highlight_colors:
+    money_secrets: "&H0015CCFA&"     # Luminous Gold
+    human_psychology: "&H00FA8BA7&"  # Electric Lavender
+    future_is_here: "&H00EED322&"    # Neon Cyan
+    daily_mystery: "&H0024BFFB&"     # Luminous Amber
+
+limits:
+  daily_video_target: 3
+  daily_max_limit: 6
