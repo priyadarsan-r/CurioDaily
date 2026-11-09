@@ -144,8 +144,8 @@ class CinematicDirector:
 
             lighting = LIGHTINGS[idx % len(LIGHTINGS)]
 
-            # Check if this is the final Follow CTA scene
-            is_cta = (idx == total_chunks) or any(k in chunk.lower() for k in ["follow for daily tips", "curiodaily", "miss out", "follow"])
+            # Only the final scene is the dedicated branded Outro CTA card
+            is_cta = (idx == total_chunks)
             if is_cta:
                 visual_type = "outro"
                 visual_desc = "Branded CurioDaily call to action card with glowing icon and follow handle."

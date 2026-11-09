@@ -22,14 +22,19 @@ from publishing.publish_reel import publish_reel_post
 
 logger = logging.getLogger(__name__)
 
-PAUSE_FILE = Path(__file__).resolve().parent.parent / "config" / "PAUSE_PUBLISHING"
+def get_pause_file() -> Path:
+    env_path = os.getenv("CURIO_PAUSE_FILE")
+    if env_path:
+        return Path(env_path)
+    return Path(__file__).resolve().parent.parent / "config" / "PAUSE_PUBLISHING"
 
 
 def is_publishing_paused() -> bool:
     """Check if emergency human kill-switch or pause override is active."""
     if os.getenv("PUBLISHING_PAUSED", "").lower() in ("true", "1", "yes"):
         return True
-    if PAUSE_FILE.exists():
+    pause_file = get_pause_file()
+    if pause_file.exists():
         return True
     schedule_file = Path(__file__).resolve().parent.parent / "config" / "schedule.yml"
     if schedule_file.exists():
@@ -46,13 +51,14 @@ def is_publishing_paused() -> bool:
 
 def set_publishing_pause(paused: bool) -> None:
     """Set or remove emergency pause file."""
+    pause_file = get_pause_file()
     if paused:
-        PAUSE_FILE.parent.mkdir(parents=True, exist_ok=True)
-        PAUSE_FILE.write_text("PAUSED", encoding="utf-8")
+        pause_file.parent.mkdir(parents=True, exist_ok=True)
+        pause_file.write_text("PAUSED", encoding="utf-8")
         logger.warning("Emergency kill switch activated: Publishing PAUSED.")
     else:
-        if PAUSE_FILE.exists():
-            PAUSE_FILE.unlink()
+        if pause_file.exists():
+            pause_file.unlink()
         logger.info("Publishing RESUMED.")
 
 

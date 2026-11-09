@@ -228,6 +228,113 @@ def draw_wow_signal_spectrogram(
     draw.text((left + 105, bottom - 130), "Hydrogen line signal recorded at Big Ear Observatory.", fill=(203, 213, 225), font=get_font(19, bold=False))
 
 
+def draw_rule_of_72_matrix(
+    draw: ImageDraw.ImageDraw,
+    box: Tuple[int, int, int, int],
+    primary_color: Tuple[int, int, int],
+    accent_color: Tuple[int, int, int]
+) -> None:
+    """Draw Rule of 72 calculation matrix table."""
+    left, top, right, bottom = box
+    draw.text((left + 50, top + 40), "THE RULE OF 72 FORMULA", fill=primary_color, font=get_font(28, bold=True))
+    draw.text((left + 50, top + 80), "Years to Double = 72 ÷ Annual Return %", fill=(255, 255, 255), font=get_font(24, bold=False))
+
+    rates = [
+        ("4% Return (Govt Bonds)", "18.0 Years to 2X", (100, 116, 139)),
+        ("6% Return (Balanced Fund)", "12.0 Years to 2X", (148, 163, 184)),
+        ("8% Return (Index Funds)", "9.0 Years to 2X", primary_color),
+        ("12% Return (Top Equities)", "6.0 Years to 2X", accent_color),
+    ]
+    y_pos = top + 150
+    for title, val, col in rates:
+        draw.rounded_rectangle([(left + 40, y_pos), (right - 40, y_pos + 60)], radius=10, fill=(30, 41, 59), outline=col, width=2)
+        draw.text((left + 65, y_pos + 16), title, fill=(255, 255, 255), font=get_font(22, bold=True))
+        draw.text((right - 260, y_pos + 16), val, fill=col, font=get_font(22, bold=True))
+        y_pos += 85
+
+
+def draw_wealth_funnel(
+    draw: ImageDraw.ImageDraw,
+    box: Tuple[int, int, int, int],
+    primary_color: Tuple[int, int, int],
+    accent_color: Tuple[int, int, int]
+) -> None:
+    """Draw 3-stage wealth compounding funnel."""
+    left, top, right, bottom = box
+    cx = (left + right) // 2
+
+    draw.text((cx, top + 40), "THE EXPONENTIAL WEALTH FUNNEL", fill=(255, 255, 255), font=get_font(28, bold=True), anchor="mm")
+
+    stages = [
+        ("1. SURPLUS CASHFLOW", "Income > Expenses", (100, 116, 139), 500),
+        ("2. AUTOMATED INDEX ALLOCATION", "Dollar-Cost Averaging", primary_color, 380),
+        ("3. UNSTOPPABLE COMPOUNDING", "Passive Income > Living Costs", accent_color, 260),
+    ]
+    y = top + 110
+    for name, sub, col, w_stage in stages:
+        draw.rounded_rectangle([(cx - w_stage // 2, y), (cx + w_stage // 2, y + 80)], radius=12, fill=(30, 41, 59), outline=col, width=3)
+        draw.text((cx, y + 25), name, fill=col, font=get_font(22, bold=True), anchor="mm")
+        draw.text((cx, y + 55), sub, fill=(203, 213, 225), font=get_font(18, bold=False), anchor="mm")
+        y += 125
+
+
+def draw_bystander_network(
+    draw: ImageDraw.ImageDraw,
+    box: Tuple[int, int, int, int],
+    primary_color: Tuple[int, int, int],
+    accent_color: Tuple[int, int, int]
+) -> None:
+    """Draw Bystander Effect diffusion of responsibility network."""
+    left, top, right, bottom = box
+    cx = (left + right) // 2
+    cy = (top + bottom) // 2
+
+    draw.text((cx, top + 35), "DIFFUSION OF RESPONSIBILITY", fill=primary_color, font=get_font(26, bold=True), anchor="mm")
+    draw.text((cx, top + 75), "Why Crowds Freeze in Emergencies", fill=(148, 163, 184), font=get_font(20, bold=False), anchor="mm")
+
+    # Center emergency pulse
+    draw.ellipse([(cx - 40, cy - 40), (cx + 40, cy + 40)], fill=(239, 68, 68))
+    draw.text((cx, cy), "CRISIS", fill=(255, 255, 255), font=get_font(18, bold=True), anchor="mm")
+
+    # Surrounding bystander nodes
+    nodes = [(cx - 180, cy - 100), (cx + 180, cy - 100), (cx - 200, cy + 80), (cx + 200, cy + 80), (cx, cy + 180)]
+    for nx, ny in nodes:
+        draw.line([(cx, cy), (nx, ny)], fill=(71, 85, 105), width=2)
+        draw.ellipse([(nx - 28, ny - 28), (nx + 28, ny + 28)], fill=(30, 41, 59), outline=accent_color, width=2)
+        draw.text((nx, ny), "Wait...", fill=(203, 213, 225), font=get_font(14, bold=True), anchor="mm")
+
+
+def draw_neural_network(
+    draw: ImageDraw.ImageDraw,
+    box: Tuple[int, int, int, int],
+    primary_color: Tuple[int, int, int],
+    accent_color: Tuple[int, int, int]
+) -> None:
+    """Draw futuristic AI neural network synaptic layers."""
+    left, top, right, bottom = box
+    cx = (left + right) // 2
+    draw.text((cx, top + 40), "NEURAL REASONING ARCHITECTURE", fill=primary_color, font=get_font(26, bold=True), anchor="mm")
+
+    layers = [
+        [(left + 80, top + 150), (left + 80, top + 260), (left + 80, top + 370)],
+        [(cx, top + 120), (cx, top + 210), (cx, top + 300), (cx, top + 390)],
+        [(right - 80, top + 180), (right - 80, top + 320)],
+    ]
+    # Draw synapses
+    for n1 in layers[0]:
+        for n2 in layers[1]:
+            draw.line([n1, n2], fill=(51, 65, 85), width=1)
+    for n2 in layers[1]:
+        for n3 in layers[2]:
+            draw.line([n2, n3], fill=(100, 116, 139), width=2)
+
+    # Draw nodes
+    for l_idx, layer in enumerate(layers):
+        col = primary_color if l_idx == 1 else (accent_color if l_idx == 2 else (148, 163, 184))
+        for pt in layer:
+            draw.ellipse([(pt[0] - 16, pt[1] - 16), (pt[0] + 16, pt[1] + 16)], fill=(15, 23, 42), outline=col, width=3)
+
+
 def draw_concept_diagram(
     img: Image.Image,
     scene: Dict[str, Any],
@@ -237,38 +344,30 @@ def draw_concept_diagram(
     accent_color: Tuple[int, int, int]
 ) -> None:
     """
-    Select and render the appropriate concept illustration or diagram
-    based on pillar, scene type, and script content.
+    Select and render a guaranteed distinct concept illustration
+    based on pillar, scene index, and narration keywords.
     """
     draw = ImageDraw.Draw(img)
     scene_num = scene.get("scene_number", 1)
-    visual_type = scene.get("visual_type", "")
     narration = scene.get("narration", "").lower()
 
     if category == "money_secrets":
-        if scene_num in (2, 3) or "compound" in narration or "interest" in narration or "growth" in narration or "data_chart" in visual_type:
-            draw_exponential_growth(draw, box, primary_color, accent_color)
-        else:
-            draw_exponential_growth(draw, box, primary_color, accent_color)
+        diagrams = [draw_exponential_growth, draw_rule_of_72_matrix, draw_wealth_funnel]
+        func = diagrams[(scene_num - 1) % len(diagrams)]
+        func(draw, box, primary_color, accent_color)
 
     elif category == "human_psychology":
-        if scene_num in (2, 3, 4) or "dunning" in narration or "confidence" in narration or "bias" in narration:
-            draw_dunning_kruger_curve(draw, box, primary_color, accent_color)
-        else:
-            draw_dunning_kruger_curve(draw, box, primary_color, accent_color)
+        diagrams = [draw_dunning_kruger_curve, draw_bystander_network]
+        func = diagrams[(scene_num - 1) % len(diagrams)]
+        func(draw, box, primary_color, accent_color)
 
     elif category == "future_is_here":
-        if scene_num in (2, 3, 4) or "battery" in narration or "energy" in narration or "density" in narration:
-            draw_energy_density_chart(draw, box, primary_color, accent_color)
-        else:
-            draw_energy_density_chart(draw, box, primary_color, accent_color)
+        diagrams = [draw_energy_density_chart, draw_neural_network]
+        func = diagrams[(scene_num - 1) % len(diagrams)]
+        func(draw, box, primary_color, accent_color)
 
     elif category == "daily_mystery":
-        if scene_num in (2, 3, 4) or "signal" in narration or "radio" in narration or "space" in narration or "wow" in narration:
-            draw_wow_signal_spectrogram(draw, box, primary_color, accent_color)
-        else:
-            draw_wow_signal_spectrogram(draw, box, primary_color, accent_color)
+        draw_wow_signal_spectrogram(draw, box, primary_color, accent_color)
 
     else:
-        # Fallback default curve
         draw_exponential_growth(draw, box, primary_color, accent_color)

@@ -2,7 +2,9 @@
 Tests for publishing flow and idempotency controls.
 """
 
+from pathlib import Path
 from unittest.mock import MagicMock
+import pytest
 from database.db import Database
 from publishing.instagram_client import InstagramClient
 from publishing.publish_reel import publish_reel_post
@@ -49,7 +51,8 @@ def test_mock_client_publishing_flow():
     assert media_id.startswith("mock_media_id_")
 
 
-def test_emergency_publishing_kill_switch():
+def test_emergency_publishing_kill_switch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("CURIO_PAUSE_FILE", str(tmp_path / "PAUSE_PUBLISHING"))
     from publishing.publish_queue import is_publishing_paused, set_publishing_pause, process_queue
 
     # Ensure clean state

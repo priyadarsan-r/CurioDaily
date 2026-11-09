@@ -108,6 +108,7 @@ class CinematicVideoGenerator:
         logger.info(f"Step 2 Complete: Voice synthesized ({total_audio_duration:.1f}s across {len(scenes)} cuts).")
 
         # 3. Resolve Media Clips (Pexels / Pixabay / AI Video / Archival + Ken Burns motion)
+        self.media_router.reset_session(content_id)
         scene_clip_paths: List[Path] = []
         scene_durations: List[float] = []
 
@@ -125,7 +126,15 @@ class CinematicVideoGenerator:
             scene_durations.append(dur)
             asset_mgr.record_asset(content_id, clip_path, "video_clip", attribution_text="CurioDaily Cinematic Scene")
 
-        logger.info(f"Step 3 Complete: {len(scene_clip_paths)} visual clips rendered.")
+        # Guarantee at least 10 different images or short videos across scenes
+        unique_visuals = self.media_router.ensure_minimum_diversity(
+            scenes=scenes,
+            topic_title=title,
+            category=category,
+            content_dir=content_dir,
+            target=10
+        )
+        logger.info(f"Step 3 Complete: {len(scene_clip_paths)} visual clips rendered ({unique_visuals} unique media assets).")
 
         # 4. Generate Subtitles (Modern ASS with Glassmorphism Pill & Highlights)
         srt_path = content_dir / "subtitles.srt"

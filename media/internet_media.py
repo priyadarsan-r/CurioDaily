@@ -229,6 +229,15 @@ def render_scene_to_video_clip(
         return False
 
 
+_ACTIVE_REGISTRIES: Dict[str, Any] = {}
+
+def get_reel_registry(content_id: str) -> Any:
+    from media.media_fetcher import ReelMediaRegistry
+    if content_id not in _ACTIVE_REGISTRIES:
+        _ACTIVE_REGISTRIES[content_id] = ReelMediaRegistry(content_id)
+    return _ACTIVE_REGISTRIES[content_id]
+
+
 def resolve_and_render_scene_clip(
     scene: Dict[str, Any],
     title: str,
@@ -241,76 +250,29 @@ def resolve_and_render_scene_clip(
 ) -> Path:
     """
     Resolve real video clip or real internet/AI image for the scene,
-    and render to a 1080x1920 MP4 scene clip with Ken Burns motion and smooth transitions.
+    guaranteeing at least 10 different visuals across scenes with strict deduplication.
     """
-    scene_clip_path = content_dir / f"scene_{idx}_clip.mp4"
-    if scene_clip_path.exists() and scene_clip_path.stat().st_size > 10000:
-        return scene_clip_path
+    from media.media_fetcher import resolve_distinct_scene_clip
 
-    from media.create_visuals import create_reel_scene_image
+    registry = get_reel_registry(content_id)
+    dest_clip = resolve_distinct_scene_clip(
+        scene=scene,
+        topic_title=title,
+        category=category,
+        scene_dur=scene_dur,
+        content_dir=content_dir,
+        scene_idx=idx,
+        registry=registry
+    )
 
-    visual_type = scene.get("visual_type", "")
-    section = scene.get("section", "")
-    narration_text = scene.get("narration", "").lower()
+    if asset_mgr and dest_clip.exists():
+        asset_info = registry.scene_assets.get(idx, {})
+        asset_mgr.record_asset(
+            content_id,
+            dest_clip,
+            asset_info.get("media_type", "video_clip"),
+            source_url=asset_info.get("url", ""),
+            attribution_text=asset_info.get("attribution", "CurioDaily Visual Engine")
+        )
 
-    # Outro Scene: Directly render the branded CurioDaily CTA card with subtle Ken Burns motion
-    if visual_type == "outro" or section == "outro" or "follow for daily tips on curiodaily" in narration_text:
-        outro_img = content_dir / f"scene_{idx}_outro.jpg"
-        create_reel_scene_image(scene, title, category, outro_img)
-        render_scene_to_video_clip(outro_img, is_video=False, duration=scene_dur, output_clip_path=scene_clip_path)
-        return scene_clip_path
-
-    scene_tag = scene.get("on_screen_text", title[:30])
-    visual_desc = scene.get("visual_description", "")
-
-    # Alternate between video clips and real/AI photos across scenes
-    is_video_turn = (idx % 2 == 1)
-
-    # 1. Attempt Video Clip
-    if is_video_turn:
-        vid_slugs = CATEGORY_VIDEO_MAP.get(category, ["technology", "space"])
-        import random
-        slug = random.choice(vid_slugs)
-        vid_url = fetch_mixkit_video_url(slug)
-        if vid_url:
-            raw_vid = content_dir / f"raw_video_{idx}.mp4"
-            if download_file(vid_url, raw_vid):
-                success = render_scene_to_video_clip(raw_vid, is_video=True, duration=scene_dur, output_clip_path=scene_clip_path)
-                if success:
-                    if asset_mgr:
-                        asset_mgr.record_asset(content_id, raw_vid, "video_broll", source_url=vid_url, license_name="Mixkit Free License", attribution_text="Mixkit Stock Video")
-                    return scene_clip_path
-
-    # 2. Attempt Real Internet Photo (Wikimedia Commons / Wikipedia)
-    photo_info = fetch_wikimedia_photo_url(title)
-    if not photo_info:
-        photo_info = fetch_wikimedia_photo_url(category.replace("_", " "))
-
-    if photo_info:
-        raw_photo = content_dir / f"raw_photo_{idx}.jpg"
-        if download_file(photo_info["url"], raw_photo):
-            branded_photo = content_dir / f"branded_photo_{idx}.jpg"
-            overlay_brand_elements_on_image(raw_photo, title, category, scene_tag, branded_photo)
-            success = render_scene_to_video_clip(branded_photo, is_video=False, duration=scene_dur, output_clip_path=scene_clip_path)
-            if success:
-                if asset_mgr:
-                    asset_mgr.record_asset(content_id, raw_photo, "photo", source_url=photo_info["url"], license_name=photo_info["license"], attribution_text=photo_info["title"])
-                return scene_clip_path
-
-    # 3. Attempt AI-Generated Image (Pollinations)
-    ai_prompt = f"cinematic 8k highly detailed visual of {title}, {visual_desc}, vertical 9:16 portrait"
-    raw_ai = content_dir / f"raw_ai_{idx}.jpg"
-    if fetch_ai_image(ai_prompt, raw_ai):
-        branded_ai = content_dir / f"branded_ai_{idx}.jpg"
-        overlay_brand_elements_on_image(raw_ai, title, category, scene_tag, branded_ai)
-        success = render_scene_to_video_clip(branded_ai, is_video=False, duration=scene_dur, output_clip_path=scene_clip_path)
-        if success:
-            if asset_mgr:
-                asset_mgr.record_asset(content_id, raw_ai, "ai_image", license_name="AI Generated", attribution_text="CurioDaily AI Generator")
-            return scene_clip_path
-
-    # 4. Fallback: Procedural Concept Frame with Ken Burns Motion
-    fallback_img = content_dir / f"scene_{idx}.jpg"
-    create_reel_scene_image(scene, title, category, fallback_img)
-    render_scene_to_video_clip(fallback_img, is_video=False, duration=scene_dur, output_clip_path=scene_clip_path)
-    return scene_clip_path
+    return dest_clip

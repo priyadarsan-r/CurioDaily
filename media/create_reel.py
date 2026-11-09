@@ -67,9 +67,16 @@ def build_reel(
     scene_audio_paths: List[Path] = []
     current_time = 0.0
 
-    # Ensure storyboard has at least 1 scene
-    if not storyboard:
-        storyboard = [{"scene_number": 1, "narration": narration, "on_screen_text": title[:30]}]
+    # Ensure storyboard has high visual density (15-20 cuts matching audience retention standards)
+    if not storyboard or len(storyboard) < 10:
+        from ai.cinematic_director import CinematicDirector
+        director = CinematicDirector()
+        storyboard = director.break_into_cinematic_scenes(
+            script=narration,
+            topic_title=title,
+            category=category,
+            total_estimated_sec=55.0
+        )
 
     # Guarantee that the Reel ends with the official CurioDaily Follow CTA scene
     has_cta = any("follow for daily tips on curiodaily" in s.get("narration", "").lower() for s in storyboard)
@@ -84,6 +91,10 @@ def build_reel(
             "on_screen_text": "FOLLOW @CURIODAILY",
             "transition": "fade",
         })
+
+    from media.internet_media import get_reel_registry
+    from media.media_fetcher import ensure_minimum_ten_unique_visuals
+    reel_reg = get_reel_registry(content_id)
 
     for idx, scene in enumerate(storyboard, start=1):
         scene_text = scene.get("narration", "").strip() or title
@@ -122,6 +133,17 @@ def build_reel(
         scene_clip_paths.append(clip_path)
         scene_durations.append(dur)
         asset_mgr.record_asset(content_id, clip_path, "video_clip", attribution_text="CurioDaily Cinematic Scene Clip")
+
+    # Guarantee at least 10 different images or short videos across scenes
+    unique_count = ensure_minimum_ten_unique_visuals(
+        scenes=storyboard,
+        topic_title=title,
+        category=category,
+        content_dir=content_dir,
+        registry=reel_reg,
+        min_unique_target=10
+    )
+    logger.info("Visual diversity verified: %d unique assets rendered across %d scenes", unique_count, len(storyboard))
 
     # 3. Generate Subtitles (both .srt and modern styled .ass with keyword highlights & pill box)
     srt_path = content_dir / "subtitles.srt"
