@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-07",
+  "generated_at": "2026-11-07T17:24:06.420677+00:00",
+  "topics": {
+    "total_lifetime": 4,
+    "discovered_today": 4
+  },
+  "content": {
+    "total_pieces_generated": 4,
+    "pending_in_queue": 0,
+    "published_total": 4
+  },
+  "system_status": "healthy"
+}

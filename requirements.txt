@@ -4,3 +4,7 @@ beautifulsoup4
 feedparser
 pillow
 pytest
+pyyaml
+kokoro-onnx
+soundfile
+imageio-ffmpeg

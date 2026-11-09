@@ -1,1 +1,32 @@
-# Implementation for brand.yml
+brand:
+  name: "CurioDaily"
+  handle: "@curiodaily"
+  tagline: "Feed your curiosity every single day"
+  watermark: "CurioDaily"
+  typography:
+    heading_font: "Helvetica-Bold"
+    body_font: "Helvetica"
+    caption_font: "Helvetica-Bold"
+  colors:
+    background: "#0F172A"      # Slate 900
+    card_bg: "#1E293B"         # Slate 800
+    text_primary: "#F8FAFC"    # Slate 50
+    text_secondary: "#94A3B8"  # Slate 400
+    accent: "#38BDF8"          # Sky 400
+  pillars:
+    money_secrets:
+      primary_color: "#10B981"  # Emerald 500
+      accent_color: "#34D399"   # Emerald 400
+      badge: "MONEY SECRETS"
+    human_psychology:
+      primary_color: "#8B5CF6"  # Violet 500
+      accent_color: "#A78BFA"   # Violet 400
+      badge: "HUMAN MIND"
+    future_is_here:
+      primary_color: "#06B6D4"  # Cyan 500
+      accent_color: "#22D3EE"   # Cyan 400
+      badge: "FUTURE TECH"
+    daily_mystery:
+      primary_color: "#F59E0B"  # Amber 500
+      accent_color: "#FBBF24"   # Amber 400
+      badge: "DAILY MYSTERY"

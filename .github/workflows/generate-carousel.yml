@@ -1,1 +1,39 @@
-# Implementation for generate-carousel.yml
+name: Generate Carousel
+
+on:
+  schedule:
+    # 08:30 UTC = 14:00 IST (Preparation for 15:00 IST slot)
+    - cron: '30 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-carousel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate Carousel Slides
+        run: |
+          python scripts/run_daily.py --stage generate --format carousel
+
+      - name: Upload Output Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: carousel-output
+          path: output/
+          retention-days: 3

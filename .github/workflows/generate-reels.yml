@@ -1,1 +1,93 @@
-# Implementation for generate-reels.yml
+name: Generate Reels
+
+on:
+  schedule:
+    # 4 distinct publishing preparation slots across the day (UTC):
+    # 02:30 UTC = 08:00 IST (Pillar 1: Money Secrets)
+    # 06:00 UTC = 11:30 IST (Pillar 2: Human Psychology)
+    # 10:30 UTC = 16:00 IST (Pillar 3: Future Is Here)
+    # 14:00 UTC = 19:30 IST (Pillar 4: The Daily Mystery)
+    - cron: '30 2,10 * * *'
+    - cron: '0 6,14 * * *'
+  workflow_dispatch:
+    inputs:
+      pillar:
+        description: 'Content Pillar to generate'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - money_secrets
+          - human_psychology
+          - future_is_here
+          - daily_mystery
+
+permissions:
+  contents: write
+
+jobs:
+  generate-reels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install System Dependencies (FFmpeg, espeak-ng)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng libsndfile1
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Cache Kokoro Neural Voice Models
+        id: cache-kokoro
+        uses: actions/cache@v4
+        with:
+          path: assets/models/kokoro
+          key: kokoro-v1.0-model
+
+      - name: Download Kokoro Model Weights
+        if: steps.cache-kokoro.outputs.cache-hit != 'true'
+        run: |
+          python scripts/download_models.py
+
+      - name: Determine Target Pillar
+        id: select-pillar
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SELECTED_PILLAR="${{ inputs.pillar }}"
+          else
+            HOUR=$(date -u +%H)
+            if [ "$HOUR" -le 4 ]; then
+              SELECTED_PILLAR="money_secrets"
+            elif [ "$HOUR" -le 8 ]; then
+              SELECTED_PILLAR="human_psychology"
+            elif [ "$HOUR" -le 12 ]; then
+              SELECTED_PILLAR="future_is_here"
+            else
+              SELECTED_PILLAR="daily_mystery"
+            fi
+          fi
+          echo "pillar=$SELECTED_PILLAR" >> $GITHUB_OUTPUT
+          echo "Selected content pillar: $SELECTED_PILLAR"
+
+      - name: Generate Reel for Selected Pillar
+        run: |
+          python scripts/run_daily.py --stage generate --format reel --pillar ${{ steps.select-pillar.outputs.pillar }}
+
+      - name: Upload Generated Output Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: reels-output-${{ steps.select-pillar.outputs.pillar }}
+          path: output/
+          retention-days: 3

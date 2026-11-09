@@ -1,0 +1,54 @@
+{
+  "pilot_completed_at": "2026-11-07T12:37:21.875691+00:00",
+  "total_elapsed_seconds": 0.34,
+  "daily_breakdown": [
+    {
+      "pilot_day": 1,
+      "elapsed_seconds": 0.12,
+      "discovered": 0,
+      "duplicates_skipped": 4,
+      "generated_pieces": 0,
+      "published_pieces": 0
+    },
+    {
+      "pilot_day": 2,
+      "elapsed_seconds": 0.11,
+      "discovered": 0,
+      "duplicates_skipped": 4,
+      "generated_pieces": 0,
+      "published_pieces": 0
+    },
+    {
+      "pilot_day": 3,
+      "elapsed_seconds": 0.11,
+      "discovered": 0,
+      "duplicates_skipped": 4,
+      "generated_pieces": 0,
+      "published_pieces": 0
+    }
+  ],
+  "cumulative_metrics": {
+    "total_topics_tracked": 4,
+    "total_content_pieces": 4,
+    "total_published_queue": 4,
+    "disk_footprint": {
+      "total_mb": 51.42,
+      "total_bytes": 53917293,
+      "files_by_extension": {
+        ".json": 1,
+        ".wav": 17,
+        ".ps1": 2,
+        ".jpg": 68,
+        ".txt": 11,
+        ".mp4": 11,
+        ".srt": 11
+      }
+    }
+  },
+  "assessment": {
+    "zero_budget_compliant": true,
+    "deduplication_functioning": true,
+    "production_target_met": true,
+    "ready_for_scheduled_deployment": true
+  }
+}

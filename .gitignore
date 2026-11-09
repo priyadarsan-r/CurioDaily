@@ -1,1 +1,32 @@
-# Implementation for .gitignore
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing and environments
+.pytest_cache/
+.venv/
+env/
+venv/
+ENV/
+
+# Output and temporary media files (do not commit generated media)
+output/
+*.mp4
+*.wav
+*.mp3
+
+# Large neural model weights (downloaded on-demand or cached in CI/CD)
+assets/models/
+*.onnx
+*.bin
+*.pt
+*.safetensors
+
+# Secrets and local configurations
+.env
+*.local.yml
+
+# OS files
+.DS_Store
+Thumbs.db

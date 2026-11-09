@@ -1,4 +1,4 @@
-CREATE TABLE topics (
+CREATE TABLE IF NOT EXISTS topics (
     topic_id TEXT PRIMARY KEY,
     title TEXT,
     normalized_title TEXT,
@@ -12,7 +12,7 @@ CREATE TABLE topics (
     content_hash TEXT
 );
 
-CREATE TABLE sources (
+CREATE TABLE IF NOT EXISTS sources (
     source_id TEXT PRIMARY KEY,
     topic_id TEXT,
     url TEXT,
@@ -24,7 +24,7 @@ CREATE TABLE sources (
     reliability_notes TEXT
 );
 
-CREATE TABLE claims (
+CREATE TABLE IF NOT EXISTS claims (
     claim_id TEXT PRIMARY KEY,
     topic_id TEXT,
     claim_text TEXT,
@@ -33,7 +33,7 @@ CREATE TABLE claims (
     confidence_notes TEXT
 );
 
-CREATE TABLE content (
+CREATE TABLE IF NOT EXISTS content (
     content_id TEXT PRIMARY KEY,
     topic_id TEXT,
     format TEXT,
@@ -46,7 +46,7 @@ CREATE TABLE content (
     created_at DATETIME
 );
 
-CREATE TABLE publishing_queue (
+CREATE TABLE IF NOT EXISTS publishing_queue (
     queue_id TEXT PRIMARY KEY,
     content_id TEXT,
     scheduled_at DATETIME,
@@ -58,7 +58,7 @@ CREATE TABLE publishing_queue (
     published_at DATETIME
 );
 
-CREATE TABLE insights (
+CREATE TABLE IF NOT EXISTS insights (
     insight_id TEXT PRIMARY KEY,
     content_id TEXT,
     retrieved_at DATETIME,

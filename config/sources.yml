@@ -1,1 +1,50 @@
-# Implementation for sources.yml
+sources:
+  rss:
+    - name: "Phys.org Technology & Science"
+      url: "https://phys.org/rss-feed/"
+      category: "future_is_here"
+      source_class: "secondary"
+    - name: "ScienceDaily Mind & Brain"
+      url: "https://www.sciencedaily.com/rss/mind_brain.xml"
+      category: "human_psychology"
+      source_class: "secondary"
+    - name: "NASA Breaking News"
+      url: "https://www.nasa.gov/news-release/feed/"
+      category: "future_is_here"
+      source_class: "primary"
+    - name: "Investopedia Financial News"
+      url: "https://www.investopedia.com/financial-news-4427704"
+      category: "money_secrets"
+      source_class: "secondary"
+    - name: "Smithsonian History & Mystery"
+      url: "https://www.smithsonianmag.com/rss/history-archaeology/"
+      category: "daily_mystery"
+      source_class: "secondary"
+
+  reddit:
+    - subreddit: "todayilearned"
+      category: "daily_mystery"
+      limit: 15
+    - subreddit: "psychology"
+      category: "human_psychology"
+      limit: 15
+    - subreddit: "personalfinance"
+      category: "money_secrets"
+      limit: 15
+    - subreddit: "technology"
+      category: "future_is_here"
+      limit: 15
+
+  google_trends:
+    geo: "US"
+    categories:
+      - category: "money_secrets"
+        hl: "en-US"
+      - category: "future_is_here"
+        hl: "en-US"
+
+  wikipedia:
+    featured_feed: "https://en.wikipedia.org/api/rest_v1/page/random/summary"
+    categories:
+      - "Unsolved_problems"
+      - "Curiosities"

@@ -1,1 +1,39 @@
-# Implementation for research-and-plan.yml
+name: Research and Editorial Plan
+
+on:
+  schedule:
+    # 02:30 UTC = 08:00 IST
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Editorial Research & Selection
+        run: |
+          python research/editorial_selection.py
+
+      - name: Upload Database Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-engine-db
+          path: database/content_engine.db
+          retention-days: 7
