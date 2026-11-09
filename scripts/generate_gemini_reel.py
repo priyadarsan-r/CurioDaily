@@ -30,6 +30,7 @@ from media.cinematic_renderer import CinematicRenderer
 from media.create_captions import create_ass_subtitles, create_srt_subtitles
 from media.create_visuals import create_reel_scene_image
 from media.internet_media import overlay_brand_elements_on_image
+from media.media_fetcher import ReelMediaRegistry
 from media.providers.gemini_image_provider import GeminiImagenProvider, convert_video_clip_to_gif
 from media.providers.video_providers import KenBurnsVideoProvider
 from media.quality_inspector import QualityInspector
@@ -63,15 +64,15 @@ class GeminiReelGenerator:
         script: str,
         title: str,
         category: str = "daily_mystery",
-        generate_gifs: bool = True
+        format_mode: str = "hybrid"
     ) -> Dict[str, Any]:
         """
         Execute full 10-scene Gemini AI Pro generation pipeline:
         1. Gemini analyzes script into exactly 10 scene prompts.
         2. Kokoro TTS synthesizes voiceover.
-        3. Gemini Imagen 3 generates 10 tailored vertical images.
-        4. Ken Burns animates images into video clips & converts to 10 GIFs.
-        5. ASS kinetic subtitles burned with glassmorphism pill.
+        3. Generates real-world cinematic scenes (1 unique format per scene: jpg OR gif).
+        4. Ken Burns animates images into video clips for the master reel.
+        5. ASS kinetic subtitles burned with glassmorphism pill (no top/bottom headers).
         6. Cinematic sound design mixed with music and SFX.
         7. FFmpeg exports 1080x1920 MP4 reel.
         """
@@ -113,58 +114,91 @@ class GeminiReelGenerator:
         total_audio_duration = concat_wav_files(scene_audio_paths, raw_voice_path)
         logger.info("Step 2 Complete: Voice synthesized (%.1fs across %d scenes).", total_audio_duration, len(scenes))
 
-        # 3. Generate 10 tailored pictures using Gemini / Imagen 3
+        # 3. Generate 10 real-world cinematic visual scenes (EXACTLY 1 format per scene: jpg OR gif)
+        registry = ReelMediaRegistry(content_id=f"gemini_reel_{run_hash}")
         generated_images: List[Path] = []
         generated_clips: List[Path] = []
         generated_gifs: List[Path] = []
 
         for idx, scene in enumerate(scenes, start=1):
             dur = scene["duration_sec"]
-            is_outro = (idx == 10) or scene.get("visual_type") == "outro"
 
-            raw_img = content_dir / f"scene_{idx:02d}.jpg"
-            branded_img = content_dir / f"scene_{idx:02d}_branded.jpg"
+            # Format selection: 'image' (default) creates real-world photographs (.jpg) for all scenes
+            if format_mode == "gif":
+                scene_format = "gif"
+            elif format_mode == "hybrid":
+                scene_format = "gif" if (idx % 2 == 1) else "jpg"
+            else:  # "image" (default)
+                scene_format = "jpg"
+
+            raw_frame = content_dir / f"scene_{idx:02d}_frame.jpg"
             dest_clip = content_dir / f"scene_{idx:02d}_clip.mp4"
             dest_gif = content_dir / f"scene_{idx:02d}.gif"
+            dest_jpg = content_dir / f"scene_{idx:02d}.jpg"
 
-            if is_outro:
-                # Scene 10: Official branded CurioDaily follow card
-                create_reel_scene_image(scene, title, category, raw_img)
-            else:
-                # Scenes 1 to 9: Photorealistic visual generated via Gemini Imagen 3
-                prompt = scene.get("imagen_prompt", "")
-                success = self.imagen_provider.fetch_image(prompt, raw_img, aspect_ratio="9:16")
-                if not success or not raw_img.exists() or raw_img.stat().st_size < 5000:
-                    # Deterministic fallback
-                    create_reel_scene_image(scene, title, category, raw_img)
+            # Fetch real-world cinema photograph (Google Imagen 3 / Pollinations / Wikimedia / NASA)
+            prompt = scene.get("imagen_prompt", "")
+            visual_desc = scene.get("visual_description", "")
+            keywords = scene.get("caption_keywords", "")
 
-            # Apply brand badge & watermark overlay
-            tag = scene.get("caption_keywords") or title[:25]
-            overlay_brand_elements_on_image(raw_img, title, category, tag, branded_img)
-            generated_images.append(raw_img)
+            success = self.imagen_provider.fetch_image(
+                prompt=prompt,
+                output_path=raw_frame,
+                aspect_ratio="9:16",
+                keywords=keywords,
+                scene_idx=idx,
+                registry=registry,
+                visual_desc=visual_desc,
+                category=category
+            )
+            if not success or not raw_frame.exists() or raw_frame.stat().st_size < 5000:
+                create_reel_scene_image(scene, title, category, raw_frame)
 
-            # Animate image with designated camera movement (Ken Burns motion)
+            # Strict session deduplication: if content hash was already used, recreate with unique frame
+            if registry.is_hash_used(raw_frame):
+                logger.warning("Duplicate detected for scene %02d. Regenerating unique frame...", idx)
+                create_reel_scene_image(scene, title, category, raw_frame)
+
+            registry.register_asset(idx, raw_frame, "image")
+
+            # Animate visual frame with designated camera movement (Ken Burns motion)
             cam_move = scene.get("camera_movement", "slow_zoom_in")
             self.ken_burns.animate_image_to_clip(
-                image_path=branded_img,
+                image_path=raw_frame,
                 duration=dur,
                 output_path=dest_clip,
                 camera_movement=cam_move
             )
             generated_clips.append(dest_clip)
 
-            # Convert to animated GIF if requested
-            if generate_gifs:
+            # Create strictly ONE format for this scene: EITHER .gif OR .jpg
+            if scene_format == "gif":
                 convert_video_clip_to_gif(dest_clip, dest_gif, fps=15, width=540)
                 if dest_gif.exists():
                     generated_gifs.append(dest_gif)
+                if raw_frame.exists():
+                    raw_frame.unlink()
+                logger.info("Scene %02d created as animated GIF (single format): %s", idx, dest_gif.name)
+            else:
+                raw_frame.replace(dest_jpg)
+                generated_images.append(dest_jpg)
+                logger.info("Scene %02d created as cinema photograph (single format): %s", idx, dest_jpg.name)
 
-            logger.info("Scene %02d generated: image (%d bytes), video clip, and GIF", idx, raw_img.stat().st_size)
+        # Audit image uniqueness: Every single scene image must be distinct
+        unique_hashes = set()
+        for p in generated_images:
+            if Path(p).exists():
+                h = hashlib.md5(Path(p).read_bytes()).hexdigest()
+                unique_hashes.add(h)
 
         logger.info(
-            "Step 3 & 4 Complete: %d pictures, %d animated GIFs, and %d video clips generated.",
-            len(generated_images), len(generated_gifs), len(generated_clips)
+            "Step 3 & 4 Complete: 10 scenes created (%d photographs, %d animated GIFs, %d unique hashes).",
+            len(generated_images), len(generated_gifs), len(unique_hashes)
         )
+        if generated_images and len(unique_hashes) != len(generated_images):
+            raise ValueError(
+                f"Visual diversity violation! Only {len(unique_hashes)} unique images out of {len(generated_images)} scenes."
+            )
 
         # 5. Format Subtitles (.srt and modern .ass with kinetic keyword highlights)
         srt_path = content_dir / "subtitles.srt"
@@ -229,7 +263,8 @@ def main():
     parser.add_argument("--script", type=str, default="", help="Raw narration script")
     parser.add_argument("--script-file", type=str, default="", help="Path to text file containing narration")
     parser.add_argument("--sample", action="store_true", help="Use curated sample TED-talk script")
-    parser.add_argument("--no-gifs", action="store_true", help="Skip animated GIF generation")
+    parser.add_argument("--format-mode", choices=["image", "hybrid", "gif"], default="image",
+                        help="Asset format per scene: 'image' (default) creates real-world cinema photographs (.jpg), 'hybrid' creates 50/50 jpg/gif, 'gif' creates only gif")
     args = parser.parse_args()
 
     title = args.title
@@ -264,7 +299,7 @@ def main():
         script=script,
         title=title,
         category=args.category,
-        generate_gifs=not args.no_gifs
+        format_mode=args.format_mode
     )
 
     print("\n" + "=" * 60)

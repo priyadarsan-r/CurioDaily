@@ -104,19 +104,14 @@ def overlay_brand_elements_on_image(
     output_path: Path
 ) -> Path:
     """
-    Apply top brand watermark, category badge, and scene tag
-    over a real photo or AI image before video rendering.
+    Fit image to 1080x1920 vertical canvas cleanly without any branding,
+    watermarks, badges, gradients, or title overlays.
     """
-    from media.create_visuals import PALETTES, hex_to_rgb, get_font, wrap_text
-
-    palette = PALETTES.get(category, PALETTES["daily_mystery"])
-    primary_color = hex_to_rgb(palette["primary"])
-
     with Image.open(image_path) as img:
         img_rgb = img.convert("RGB")
         target_w, target_h = 1080, 1920
 
-        # Aspect fill cover crop to 1080x1920
+        # Clean aspect-fill cover crop to 1080x1920
         ratio = max(target_w / img_rgb.width, target_h / img_rgb.height)
         new_size = (int(img_rgb.width * ratio), int(img_rgb.height * ratio))
         img_resized = img_rgb.resize(new_size, Image.Resampling.LANCZOS)
@@ -124,37 +119,8 @@ def overlay_brand_elements_on_image(
         top = (img_resized.height - target_h) // 2
         cropped = img_resized.crop((left, top, left + target_w, top + target_h))
 
-        draw = ImageDraw.Draw(cropped)
-
-        # Top subtle dark gradient overlay for watermark readability
-        for y in range(0, 380):
-            alpha = int(180 * (1.0 - y / 380))
-            draw.line([(0, y), (target_w, y)], fill=(15, 23, 42))
-
-        # Bottom subtle dark gradient overlay for subtitles readability (near bottom MarginV=55)
-        for y in range(1650, target_h):
-            draw.line([(0, y), (target_w, y)], fill=(15, 23, 42))
-
-        # Brand Badge & Watermark
-        badge_text = palette["badge"]
-        badge_font = get_font(30, bold=True)
-        draw.rectangle([(70, 160), (70 + len(badge_text) * 20, 210)], fill=primary_color)
-        draw.text((82, 168), badge_text, fill=(15, 23, 42), font=badge_font)
-
-        watermark_font = get_font(26, bold=True)
-        draw.text((target_w - 230, 172), "@CURIODAILY", fill=(203, 213, 225), font=watermark_font)
-
-        # Title / Scene Tag
-        if scene_tag:
-            tag_font = get_font(36, bold=True)
-            lines = wrap_text(scene_tag, max_chars=30)
-            yt = 235
-            for line in lines[:2]:
-                draw.text((70, yt), line, fill=(255, 255, 255), font=tag_font)
-                yt += 48
-
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        cropped.save(output_path, "JPEG", quality=92)
+        cropped.save(output_path, "JPEG", quality=95)
 
     return output_path
 

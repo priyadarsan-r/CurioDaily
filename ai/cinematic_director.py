@@ -55,12 +55,8 @@ class CinematicDirector:
         Divide narration script into 15-20 scenes matching the 2-4s pacing.
         Assigns camera angle, lighting, sound effects, and AI generation prompt.
         """
-        # Clean and split script into phrases/sentences
+        # Clean script into phrases/sentences (no forced branding/CTA injection)
         cleaned = script.strip()
-        # Ensure mandatory CurioDaily Follow CTA is present
-        cta_text = "If you like this, follow for daily tips on CurioDaily so you don't miss out."
-        if not cta_text.lower() in cleaned.lower():
-            cleaned = f"{cleaned} {cta_text}"
 
         words = cleaned.split()
         total_words = len(words)
@@ -144,20 +140,11 @@ class CinematicDirector:
 
             lighting = LIGHTINGS[idx % len(LIGHTINGS)]
 
-            # Only the final scene is the dedicated branded Outro CTA card
-            is_cta = (idx == total_chunks)
-            if is_cta:
-                visual_type = "outro"
-                visual_desc = "Branded CurioDaily call to action card with glowing icon and follow handle."
-                ai_prompt = "CurioDaily official branded card, dark glassmorphism, 8k luxury typography, glowing cyan and emerald rings, clean motion design"
-                caption = "FOLLOW FOR DAILY TIPS"
-                sfx = "reveal_hit"
-                cam_movement = "slow_zoom_in"
-            else:
-                visual_type = "cinematic_scene"
-                visual_desc = self._craft_visual_description(chunk, topic_title, category, stage)
-                ai_prompt = self._craft_ai_prompt(chunk, topic_title, category, cam_angle, lighting, visual_desc)
-                caption = self._extract_caption_keywords(chunk)
+            # All scenes are pure cinematic visual documentary scenes (no branded outro cards)
+            visual_type = "cinematic_scene"
+            visual_desc = self._craft_visual_description(chunk, topic_title, category, stage)
+            ai_prompt = self._craft_ai_prompt(chunk, topic_title, category, cam_angle, lighting, visual_desc)
+            caption = self._extract_caption_keywords(chunk)
 
             scene_data = {
                 "scene_number": idx,

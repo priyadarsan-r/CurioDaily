@@ -102,7 +102,7 @@ def test_normalize_narration_text_expands_symbols():
     assert "15 percent" in normalized
 
 
-def test_storyboard_generator_includes_outro_cta():
+def test_storyboard_generator_clean_scenes():
     from ai.storyboard_generator import generate_reel_storyboard
     script = {
         "title": "Rule of 72",
@@ -114,22 +114,23 @@ def test_storyboard_generator_includes_outro_cta():
         "close": "Are you letting time work for you?"
     }
     storyboard = generate_reel_storyboard(script)
-    assert len(storyboard) == 7
+    assert len(storyboard) == 6
     last_scene = storyboard[-1]
-    assert last_scene["section"] == "outro"
-    assert "follow for daily tips on CurioDaily" in last_scene["narration"]
-    assert last_scene["on_screen_text"] == "FOLLOW @CURIODAILY"
+    assert last_scene["section"] == "close"
+    assert "Are you letting time work for you?" in last_scene["narration"]
+    assert "curiodaily" not in last_scene["narration"].lower()
+    assert "FOLLOW" not in last_scene.get("on_screen_text", "")
 
 
 def test_outro_scene_image_rendering(tmp_path: Path):
     from media.create_visuals import create_reel_scene_image
     outro_scene = {
-        "scene_number": 7,
-        "section": "outro",
+        "scene_number": 6,
+        "section": "close",
         "visual_type": "outro",
-        "narration": "If you like this, follow for daily tips on CurioDaily so you don't miss out.",
-        "on_screen_text": "FOLLOW @CURIODAILY",
-        "visual_description": "CurioDaily branded outro card with follow call-to-action."
+        "narration": "Are you letting time work for you?",
+        "on_screen_text": "KEY TAKEAWAY",
+        "visual_description": "Clean takeaway summary card."
     }
     img_path = tmp_path / "outro.jpg"
     create_reel_scene_image(outro_scene, "Rule of 72", "money_secrets", img_path)

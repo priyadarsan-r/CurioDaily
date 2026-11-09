@@ -119,9 +119,8 @@ class ScriptGenerator:
         development = ted_parts["development"]
         payoff = ted_parts["payoff"]
         close = ted_parts["close"]
-        cta = "If you like this, follow for daily tips on CurioDaily so you don't miss out."
 
-        narration_parts = [hook, context, development, payoff, close, cta]
+        narration_parts = [hook, context, development, payoff, close]
         full_narration = " ".join(narration_parts)
         words = full_narration.split()
         word_count = len(words)
@@ -134,8 +133,7 @@ class ScriptGenerator:
             f"{context} {payoff}\n\n"
             f"🔬 Factual Takeaway:\n{claim_summary}\n\n"
             f"📚 {source_note}\n\n"
-            f"👉 Follow @curiodaily for daily insights so you don't miss out!\n\n"
-            f"#curiodaily #{category} #knowledge #curiosity #learnsomethingnew #dailyreels"
+            f"#{category} #knowledge #curiosity #learnsomethingnew #dailyreels"
         )
 
         return {
@@ -174,14 +172,14 @@ class ScriptGenerator:
         supporting_fact = claim_texts[1] if len(claim_texts) > 1 else "Documented by peer-reviewed research and public institutions."
 
         source_urls = [s.get("url") for s in sources if s.get("url")]
-        source_note = f"Source: {source_urls[0]}" if source_urls else "Source: CurioDaily Fact Verification Archive"
+        source_note = f"Source: {source_urls[0]}" if source_urls else "Source: Verified Research Archive"
 
         caption = (
             f"📌 {headline}\n\n"
             f"{core_insight}\n\n"
             f"Did you know? {supporting_fact}\n\n"
             f"🔗 {source_note}\n\n"
-            f"#curiodaily #{category} #dailyfact #intellectual #learn #mindset"
+            f"#{category} #dailyfact #intellectual #learn #mindset"
         )
 
         return {
@@ -257,7 +255,7 @@ class ScriptGenerator:
             f"1️⃣ {c1[:100]}...\n"
             f"2️⃣ {c2[:100]}...\n\n"
             f"Save this carousel to revisit anytime.\n\n"
-            f"#curiodaily #{category} #carousel #knowledgeispower #education #infographic"
+            f"#{category} #carousel #knowledgeispower #education #infographic"
         )
 
         return {

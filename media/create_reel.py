@@ -78,20 +78,6 @@ def build_reel(
             total_estimated_sec=55.0
         )
 
-    # Guarantee that the Reel ends with the official CurioDaily Follow CTA scene
-    has_cta = any("follow for daily tips on curiodaily" in s.get("narration", "").lower() for s in storyboard)
-    if not has_cta:
-        storyboard.append({
-            "scene_number": len(storyboard) + 1,
-            "section": "outro",
-            "narration": "If you like this, follow for daily tips on CurioDaily so you don't miss out.",
-            "visual_type": "outro",
-            "visual_description": "CurioDaily branded outro card with follow call-to-action.",
-            "camera_effect": "ken_burns",
-            "on_screen_text": "FOLLOW @CURIODAILY",
-            "transition": "fade",
-        })
-
     from media.internet_media import get_reel_registry
     from media.media_fetcher import ensure_minimum_ten_unique_visuals
     reel_reg = get_reel_registry(content_id)

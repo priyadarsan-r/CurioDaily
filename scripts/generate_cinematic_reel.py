@@ -32,8 +32,7 @@ SAMPLE_SCRIPTS = {
         "The truth was even more astonishing: a gigantic dome of molten magma swelled beneath the Earth's crust a hundred million years ago, "
         "then slowly collapsed—leaving behind concentric rings of ancient quartzite eroded over aeons. "
         "It is so massive, astronauts on the International Space Station still use it as a visual landmark today. "
-        "Our planet is covered in wonders hidden in plain sight. What else are we missing? "
-        "If you like this, follow for daily tips on CurioDaily so you don't miss out."
+        "Our planet is covered in wonders hidden in plain sight. What else are we missing?"
     ),
     "money_secrets": (
         "Imagine two people saving the exact same amount of money. One retires twenty years earlier than the other. "
@@ -44,8 +43,7 @@ SAMPLE_SCRIPTS = {
         "At nine percent return, your money doubles every eight years. At four percent? It takes eighteen. "
         "A mere five percent difference isn't just extra profit—it’s an entire lifetime of compound freedom. "
         "The moment you stop measuring your finances in dollars and start measuring them in doubling cycles... the entire game changes. "
-        "The real question isn't whether your money will compound—it’s who it will compound for. "
-        "If you like this, follow for daily tips on CurioDaily so you don't miss out."
+        "The real question isn't whether your money will compound—it’s who it will compound for."
     ),
     "human_psychology": (
         "If a doctor told you a medical procedure had a ninety percent survival rate, would you take it? "
@@ -56,8 +54,7 @@ SAMPLE_SCRIPTS = {
         "Marketers, politicians, and even the choices on a restaurant menu exploit this subtle bias every single day—"
         "simply by choosing which side of the coin to show you. "
         "The moment you recognize that the frame is an illusion, you take back control over your decisions. "
-        "Next time you face a major choice, flip the question upside down. You might be shocked at what you see. "
-        "If you like this, follow for daily tips on CurioDaily so you don't miss out."
+        "Next time you face a major choice, flip the question upside down. You might be shocked at what you see."
     ),
     "future_is_here": (
         "Every smartphone in our pockets and every electric car on the road shares the same dirty secret: liquid electrolyte batteries. "
@@ -66,8 +63,7 @@ SAMPLE_SCRIPTS = {
         "double the energy density, eight-minute fast charging, and virtually zero fire risk. "
         "It is the missing piece for electric aviation and thousand-mile vehicles. We aren't just looking at a better battery. "
         "We are watching the permanent obsolescence of fossil fuels in real time. "
-        "The next industrial revolution isn't coming in fifty years. It’s sitting in laboratories right now. "
-        "If you like this, follow for daily tips on CurioDaily so you don't miss out."
+        "The next industrial revolution isn't coming in fifty years. It’s sitting in laboratories right now."
     ),
 }
 

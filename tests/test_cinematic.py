@@ -23,8 +23,7 @@ def test_cinematic_director_generates_15_to_20_scenes():
         "and saw a giant eye staring back at them. A perfect bullseye, twenty-five miles wide. "
         "Scientists insisted it had to be an asteroid crater. But geologists found zero impact quartz. "
         "The truth was a massive magma dome that swelled and collapsed 100 million years ago. "
-        "It is so massive, astronauts on the space station still use it as a visual landmark today. "
-        "If you like this, follow for daily tips on CurioDaily so you don't miss out."
+        "It is so massive, astronauts on the space station still use it as a visual landmark today."
     )
     scenes = director.break_into_cinematic_scenes(
         script=script,
@@ -43,7 +42,8 @@ def test_cinematic_director_generates_15_to_20_scenes():
     assert "caption_text" in first
 
     last = scenes[-1]
-    assert last["visual_type"] == "outro"
+    assert last["visual_type"] == "cinematic_scene"
+    assert "outro" not in last["visual_type"]
 
 
 def test_sound_designer_sfx_and_music_generation(tmp_path: Path):

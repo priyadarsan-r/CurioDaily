@@ -443,9 +443,10 @@ def generate_pollinations_ai_image(
     registry: ReelMediaRegistry,
     timeout: float = 25.0
 ) -> bool:
-    """Generate vertical 9:16 photorealistic AI image via Pollinations with dedicated seed."""
-    clean_p = urllib.parse.quote(prompt[:130])
-    url = f"https://image.pollinations.ai/prompt/{clean_p}?width=720&height=1280&nologo=true&seed={seed}"
+    """Generate vertical 9:16 photorealistic AI image via Pollinations Flux.1 with dedicated seed."""
+    cinematic_p = f"35mm film photograph, cinematic documentary, ultra-realistic, natural lighting, real world: {prompt[:120]}"
+    clean_p = urllib.parse.quote(cinematic_p)
+    url = f"https://image.pollinations.ai/prompt/{clean_p}?width=1080&height=1920&model=flux&nologo=true&seed={seed}"
     return download_and_validate_image(url, dest_path, registry=registry, timeout=timeout)
 
 
@@ -554,27 +555,7 @@ def resolve_distinct_scene_clip(
     cam_movement = scene.get("camera_movement", "slow_zoom_in")
     scene_tag = scene.get("caption_text") or scene.get("on_screen_text") or topic_title[:30]
 
-    # 1. Outro Scene: Dedicated branded follow CTA card
-    is_outro = (
-        visual_type == "outro"
-        or section == "outro"
-        or "follow for daily tips" in narration_text
-        or "so you don't miss out" in narration_text
-    )
-    if is_outro:
-        from media.create_visuals import create_reel_scene_image
-        outro_img = content_dir / f"scene_{scene_idx:02d}_outro.jpg"
-        create_reel_scene_image(scene, topic_title, category, outro_img)
-        ken_burns_animator.animate_image_to_clip(
-            image_path=outro_img,
-            duration=scene_dur,
-            output_path=dest_clip,
-            camera_movement="slow_zoom_in"
-        )
-        registry.register_asset(scene_idx, outro_img, "outro_card", attribution="CurioDaily Outro Card")
-        return dest_clip
-
-    # Generate scene-specific query variations
+    # Generate scene-specific query variations (all scenes are pure cinematic visuals, no branded cards)
     queries = extract_scene_queries(scene, topic_title, category, scene_idx)
     logger.info("Scene %02d search queries: %s", scene_idx, queries)
 
@@ -683,8 +664,7 @@ def ensure_minimum_ten_unique_visuals(
     10 different images/videos exist.
     """
     current_unique = registry.get_unique_count()
-    non_outro_scenes = [s for s in scenes if s.get("visual_type") != "outro"]
-    target = min(min_unique_target, len(non_outro_scenes))
+    target = min(min_unique_target, len(scenes))
 
     if current_unique >= target:
         logger.info("Visual diversity target satisfied: %d unique assets (target: %d)", current_unique, target)
@@ -697,7 +677,7 @@ def ensure_minimum_ten_unique_visuals(
 
     # Find scenes that have duplicate hashes or procedural fallbacks
     seen_hashes: Set[str] = set()
-    for s in non_outro_scenes:
+    for s in scenes:
         s_idx = s.get("scene_number", 1)
         asset_info = registry.scene_assets.get(s_idx)
         h = asset_info.get("hash") if asset_info else ""

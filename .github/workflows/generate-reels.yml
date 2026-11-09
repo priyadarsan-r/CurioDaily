@@ -82,6 +82,8 @@ jobs:
           echo "Selected content pillar: $SELECTED_PILLAR"
 
       - name: Generate Reel for Selected Pillar
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           python scripts/run_daily.py --stage generate --format reel --pillar ${{ steps.select-pillar.outputs.pillar }}
 

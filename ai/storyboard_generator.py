@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 def generate_reel_storyboard(reel_script: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Generate 6-7 storyboard scenes aligned with the 5 script sections:
-    Hook, Context, Development (split into 2-3 scenes), Payoff, Close.
+    Generate 6 storyboard scenes aligned with the 5 script sections:
+    Hook, Context, Development (split into 2 scenes), Payoff, Close.
     Total duration targets 45-55 seconds.
     """
     category = reel_script.get("category", "daily_mystery")
@@ -108,19 +108,6 @@ def generate_reel_storyboard(reel_script: Dict[str, Any]) -> List[Dict[str, Any]
             "visual_description": "Thought-provoking takeaway question highlighting the core lesson.",
             "camera_effect": "zoom_in",
             "on_screen_text": "WHAT DO YOU THINK?",
-            "transition": "fade",
-        },
-        {
-            "scene_number": 7,
-            "section": "outro",
-            "start_sec": 52.0,
-            "end_sec": 57.0,
-            "duration_sec": 5.0,
-            "narration": "If you like this, follow for daily tips on CurioDaily so you don't miss out.",
-            "visual_type": "outro",
-            "visual_description": "CurioDaily branded outro card with follow call-to-action.",
-            "camera_effect": "ken_burns",
-            "on_screen_text": "FOLLOW @CURIODAILY",
             "transition": "fade",
         },
     ]
